@@ -38,18 +38,18 @@ public:
 
 		if (it == stock.end())
 		{
-			cout << "Error: 시스템에 등록되지 않은 책입니다." << endl;
+			cout << "> Error: 시스템에 등록되지 않은 책입니다." << endl;
 			return;
 		}
 		
 		if (it->second.currentQuantity <= 0)
 		{
-			cout << "Notify: '" << title << "' 책은 현재 재고가 없습니다." << endl;
+			cout << "> Notify: '" << title << "' 책은 현재 재고가 없습니다." << endl;
 			return;
 		}
 
 		it->second.currentQuantity--;
-		cout << "Success: '" << title << "' 책을 대여했습니다. (남은 재고: " << it->second.currentQuantity << ")" << endl;
+		cout << "> Success: '" << title << "' 책을 대여했습니다. (남은 재고: " << it->second.currentQuantity << ")" << endl;
 	}
 
 	void returnBook(const string& title)
@@ -58,37 +58,37 @@ public:
 
 		if (it == stock.end())
 		{
-			cout << "Error: 시스템에 등록되지 않은 책을 반납 시도했습니다." << endl;
+			cout << "> Error: 시스템에 등록되지 않은 책을 반납 시도했습니다." << endl;
 			return;
 		}
 
 		if (it->second.currentQuantity >= it->second.maxQuantity)
 		{
-			cout << "Notify: '" << title << "' 책은 이미 모든 재고가 반납된 상태입니다." << endl;
+			cout << "> Notify: '" << title << "' 책은 이미 모든 재고가 반납된 상태입니다." << endl;
 			return;
 		}
 
 		it->second.currentQuantity++;
-		cout << "Success: '" << title << "' 책을 반납했습니다. (현재 재고: " << it->second.currentQuantity << ")" << endl;
+		cout << "> Success: '" << title << "' 책을 반납했습니다. (현재 재고: " << it->second.currentQuantity << ")" << endl;
 	}
 
 	void displayStock()
 	{
 		if (stock.empty())
 		{
-			cout << "현재 등록된 책이 없습니다." << endl;
+			cout << "> 현재 등록된 책이 없습니다." << endl;
 			return;
 		}
 
-		cout << "현재 도서 목록의 재고 수:" << endl;
+		cout << "> 현재 도서 목록의 재고 수:" << endl;
 		for (auto i : stock)
 		{
-			cout << "- 책: " << i.first << " | 재고: " << i.second.currentQuantity << endl;
+			cout << "\t- 책: " << i.first << " | 재고: " << i.second.currentQuantity << endl;
 		}
 	}
 
 	// 특정 책의 대여 여부 확인 함수
-	bool isAvailable(const string& title)
+	bool isAvailable(const string& title) const
 	{
 		auto it = stock.find(title);
 		
@@ -112,7 +112,7 @@ public:
 	{
 		if (findBookByTitle(title) != nullptr)
 		{
-			cout << "오류: 이미 동일한 제목의 책이 존재합니다." << endl;
+			cout << "> Error: 이미 동일한 제목의 책이 존재합니다." << endl;
 			return;
 		}
 
@@ -120,7 +120,7 @@ public:
 
 		Book* book = findBookByTitle(title);
 		borrowManager.initializeStock(book, quantity);
-		cout << "성공: '" << title << "' by " << author << " (초기 재고: " << quantity << ") 책이 추가되었습니다." << endl;
+		cout << "> Success: '" << title << "' by " << author << " (초기 재고: " << quantity << ") 책이 추가되었습니다." << endl;
 	}
 
 	void borrowBookByTitle(const string& title)
@@ -141,15 +141,24 @@ public:
 	{
 		if (books.empty()) 
 		{
-			cout << "현재 등록된 책이 없습니다." << endl;
+			cout << "> 현재 등록된 책이 없습니다." << endl;
 			return;
 		}
 
-		cout << "현재 도서 목록:" << endl;
+		cout << "> 현재 도서 목록:" << endl;
 		for (size_t i = 0; i < books.size(); i++) 
 		{ 
 			// 일반적인 for문 사용
-			cout << "- " << books[i].title << " by " << books[i].author << endl;
+			cout << "\t- " << books[i].title << " by " << books[i].author;
+			
+			if (borrowManager.isAvailable(books[i].title))
+			{
+				cout << " (대여 가능)" << endl;
+			}
+			else
+			{
+				cout << " (대여 불가)" << endl;
+			}
 		}
 	}
 	
@@ -237,13 +246,6 @@ int main()
 			cin.ignore(); // 이전 입력의 잔여 버퍼를 제거
 			getline(cin, title);
 			manager.returnBookByTitle(title);
-		}
-		else if (choice == 2) 
-		{
-			// 2번 선택: 모든 책 출력
-			// 현재 BookManager에 저장된 책 목록을 출력합니다.
-			manager.displayAllBooks();
-			manager.displayStock();
 		}
 		else if (choice == 4)
 		{
